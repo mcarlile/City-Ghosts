@@ -5,7 +5,9 @@ import twitter4j.api.*;
 import twitter4j.conf.*;
 import twitter4j.json.*;
 import twitter4j.auth.*;
+String msg;
 boolean hasQueriedTwitter = false;
+boolean msgIsNull = true;
 
 //Twilio+Processing Code:
 
@@ -34,6 +36,8 @@ Arduino arduino;
 
 //declare the joystick
 TKLed led;
+TKButton but;
+
 
 //circle parameters
 int r;
@@ -53,6 +57,8 @@ void setup() {
   //for every tinkerkit component we have to pass
   //the arduino and the port
   led = new TKLed(arduino, TK.O0);
+  but = new TKButton(arduino, TK.I0);
+
 
   cx = width/2;
   cy = height/2;
@@ -70,7 +76,7 @@ void setup() {
   //Make the twitter object and prepare the query
   twitter = new TwitterFactory(cb.build()).getInstance();
 
-  queryTwitter();
+  //  queryTwitter();
 }
 
 void draw() {
@@ -80,22 +86,31 @@ void draw() {
   strokeWeight(3);
   stroke(255);
 
-  if (messageReceived) {
-    led.on();
-    fill(255);
+  //  if (messageReceived) {
+  //    led.on();
+  //    fill(255);
+  //  } 
+  //  else {
+  //    led.off();
+  //    noFill();
+  //    hasQueriedTwitter = false;
+  //  }
+
+  ellipse(cx, cy, r*2, r*2);
+
+  if (but.read() == TK.HIGH) {
     if (hasQueriedTwitter == false) {
       queryTwitter();
       hasQueriedTwitter = true;
     }
-  } 
-  else {
-    led.off();
-    noFill();
-    hasQueriedTwitter = false;
-    
   }
+  else {
+    hasQueriedTwitter = false;
+  };
 
-  ellipse(cx, cy, r*2, r*2);
+  if (msgIsNull == false) {
+    led.on();
+  }
 }
 
 void mousePressed() {
@@ -117,31 +132,19 @@ void queryTwitter() {
     List<Status> tweets = result.getTweets();
     println("Latest Memories from #SCIBeacon : ");
     for (Status tw : tweets) {
-      String msg = tw.getText();
-      println("tweet : " + msg);
+      msg = tw.getText();
+      println(msg);
+    }
+    if (msg != null) {
+      msgIsNull = false;
+      println ("message was not null");
+    } 
+    else {
+      println ("message was null");
     }
   }
   catch (TwitterException te) {
     println("Couldn't connect: " + te);
   }
 }
-
-//void timeline() {
-//  try {
-//    words.clear();
-//    User user = twitter.showUser("CGenerativo");
-//    println(user.getName());
-//    if (user.getStatus() != null) {
-//      List statusess = twitter.getUserTimeline(user.getName());
-//      screenName = user.getScreenName();
-//      for (Status status3 : statusess) {
-//        println(status3.getText());
-//        words.add(status3.getText());
-//      }
-//    }
-//  }
-//  catch(TwitterException te) {
-//    println("Couldn't connect: " + te);
-//  }
-//}
 

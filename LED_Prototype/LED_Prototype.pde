@@ -49,7 +49,6 @@ void setup() {
 
   size(256, 256);
 
-  println(Arduino.list());
   arduino = new Arduino(this, Arduino.list()[5], 57600);      
   //for every tinkerkit component we have to pass
   //the arduino and the port
@@ -92,6 +91,8 @@ void draw() {
   else {
     led.off();
     noFill();
+    hasQueriedTwitter = false;
+    
   }
 
   ellipse(cx, cy, r*2, r*2);
@@ -109,12 +110,12 @@ void mousePressed() {
 
 void queryTwitter() {
   //BUSCAR NUEVO TWITTER
-  query = new Query("#cityghosts");
+  query = new Query("#SCIBeacon");
   query.setCount(10);
   try {
     QueryResult result = twitter.search(query);
     List<Status> tweets = result.getTweets();
-    println("New Tweet : ");
+    println("Latest Memories from #SCIBeacon : ");
     for (Status tw : tweets) {
       String msg = tw.getText();
       println("tweet : " + msg);

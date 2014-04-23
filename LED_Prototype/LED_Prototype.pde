@@ -8,6 +8,9 @@ import twitter4j.auth.*;
 String msg;
 boolean hasQueriedTwitter = false;
 boolean msgIsNull = true;
+int savedTime;
+int totalTime = 60000;
+int passedTime;
 
 //Twilio+Processing Code:
 
@@ -75,14 +78,21 @@ void setup() {
 
   //Make the twitter object and prepare the query
   twitter = new TwitterFactory(cb.build()).getInstance();
-
-  //  queryTwitter();
+  savedTime = millis();
 }
 
 void draw() {
 
   background(0);
 
+  // Calculate how much time has passed
+  passedTime = millis() - savedTime;
+  // Has five seconds passed?
+  if (passedTime > totalTime) {
+    queryTwitter();
+    println( " 60 seconds have passed! Checking for new memories..." );
+    savedTime = millis(); // Save the current time to restart the timer!
+  }
   strokeWeight(3);
   stroke(255);
 
@@ -111,6 +121,7 @@ void draw() {
   if (msgIsNull == false) {
     led.on();
   }
+  println ("seconds until next check: " + (60 - (passedTime/1000)));
 }
 
 void mousePressed() {
@@ -125,7 +136,7 @@ void mousePressed() {
 
 void queryTwitter() {
   //BUSCAR NUEVO TWITTER
-  query = new Query("#SCIBeacon");
+  query = new Query("##SCIBeaconPreClassMeeting4");
   query.setCount(10);
   try {
     QueryResult result = twitter.search(query);
@@ -137,10 +148,8 @@ void queryTwitter() {
     }
     if (msg != null) {
       msgIsNull = false;
-      println ("message was not null");
     } 
     else {
-      println ("message was null");
     }
   }
   catch (TwitterException te) {
